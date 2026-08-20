@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Window" style="flex-grow: 1; height: 720px; -unity-background-image-tint-color: rgb(65, 174, 207); background-color: rgba(55, 55, 55, 0.42); background-image: none;">
+        <ui:VisualElement name="Logo" style="height: 90px; background-image: none; width: 100%; align-items: center; background-color: rgb(174, 101, 245); position: relative;">
+            <ui:Label tabindex="-1" text="Feature Flags Manager" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font: url(&quot;project://database/Packages/com.genies.uiframework.internal/Art/Fonts/Roobert/Roobert-Bold.otf?fileID=12800000&amp;guid=fbe7a11dffb1873428cdcb7274be3773&amp;type=3#Roobert-Bold&quot;); position: absolute; top: 5px; left: 0; color: rgb(0, 0, 0); -unity-font-style: bold; font-size: 18px; -unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;);"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="EnablingTool" style="height: 15%; border-bottom-width: 1px; border-bottom-color: rgb(0, 0, 0); border-top-width: 1px; border-top-color: rgb(0, 0, 0); margin-top: 2px;">
+            <ui:Toggle label="Enabling Tool" name="EnablingToggle" style="-unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;);"/>
+            <ui:Toggle label="Using Local FFs" name="UsingLocalToggle" style="-unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;);"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="AppVersion" style="height: 10%; border-bottom-width: 0; border-bottom-color: rgb(0, 0, 0); border-top-width: 0; border-top-color: rgb(0, 0, 0);">
+            <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="AppVersionLabel" style="-unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;);"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="Options" style="height: 20%; border-bottom-width: 2px; border-bottom-color: rgb(0, 0, 0); border-top-width: 2px; border-top-color: rgb(0, 0, 0);">
+            <ui:Label text="Tabs" display-tooltip-when-elided="true" name="Options" style="-unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;);"/>
+            <ui:ScrollView name="ActionList" mode="Horizontal" style="background-color: rgba(255, 255, 255, 0.6); height: 100%; align-items: center; justify-content: center;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="Contents" style="height: 100%; border-top-width: 2px; margin-top: 10px; border-bottom-width: 2px; border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);">
+            <ui:Label text="Result:" display-tooltip-when-elided="true" name="Result" style="-unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;);"/>
+            <ui:Label text="---" display-tooltip-when-elided="true" name="Logs" style="height: 40px; -unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;);"/>
+            <ui:ScrollView name="ResultScroll" mode="Horizontal" style="background-color: rgba(0, 0, 0, 0.59); height: 100%; width: 100%; justify-content: space-between; align-items: stretch; -unity-background-image-tint-color: rgba(0, 0, 0, 0.6);"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,11 @@
+{
+  "name": "com.igorhosantos.assetspawner",
+  "displayName": "AssetSpawner",
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "keywords": [
+  ],
+  "description": "Asset Spawner Solution for helping Artists or Non-Technical members to Spawn Prefabs on a Unity Scene at Runtime",
+  "dependencies": {
+  }
+}

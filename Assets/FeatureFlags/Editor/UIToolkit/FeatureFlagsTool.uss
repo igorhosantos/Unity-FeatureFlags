@@ -1,0 +1,6 @@
+.buttonSplit {
+    justify-content: flex-end;
+    height: 40px;
+    margin-top: 0;
+    width: 100%;
+}
