@@ -1,18 +1,20 @@
+using System;
 using UnityEngine;
 
 namespace FeatureFlags.Model
 {
     [CreateAssetMenu(fileName = "FeatureFlagsSettingsScriptableObject",
-        menuName = "FeatureFlags/FeatureFlagsSettingsScriptableObject")]
+        menuName = "Feature Flags/FeatureFlagsSettingsScriptableObject")]
     public class FeatureFlagsSettingsScriptableObject : ScriptableObject
     {
         [SerializeField] private FeatureFlagsSettings settings;
         public FeatureFlagsSettings Settings => settings;
     }
 
+    [Serializable]
     public class FeatureFlagsSettings
     {
-        public const string FolderPath = "Assets/Genies/Resources";
+        public const string FolderPath = "Assets/Resources";
         public const string FolderName = "FeatureFlags";
         public const string FileName = "localfeatureflagsfile";
         public static string FilePath = $"{FolderPath}/{FolderName}/{FileName}.json";
@@ -23,6 +25,7 @@ namespace FeatureFlags.Model
             Api = 1,
         }
 
-        public Providers ProviderType;
+        [SerializeField] private Providers providerType;
+        public Providers ProviderType => providerType;
     }
 }
