@@ -55,9 +55,9 @@ namespace FeatureFlags.Editor.Tool
 
             _actions = new Dictionary<string, Action>
             {
-                {"Fetch Local Feature Flags", FetchAllFlagsFromLocal},
-                {"Fetch Backend Feature Flags", FetchAllFlagsApi},
-                {"Update Local FFs From Backend FFs", UpdateLocalFromBackend},
+                {"Get Flags From Provider", FetchAllFlagsApi},
+                {"Get Local Flags", FetchAllFlagsFromLocal},
+                {"Update Local Flags From Provider", UpdateLocalFromBackend},
             };
 
 
@@ -89,15 +89,37 @@ namespace FeatureFlags.Editor.Tool
 
         private void SetupDataInfo()
         {
-            ProcessSettings();
-            ProcessLocalDataInfo();
-            ProcessDataFromProvider();
+            ProcessSettingsFile();
+            //ProcessLocalDataInfo();
+            //ProcessDataFromProvider();
         }
 
-        private void ProcessSettings()
-        {
-            var scriptableObjectFile = (FeatureFlagsSettingsScriptableObject)_settingsField.value;
-            _settings = scriptableObjectFile.Settings;
+        private void ProcessSettingsFile()
+        { 
+            _logs.text = string.Empty;
+            ColorUtility.TryParseHtmlString("#00ff00", out Color successColor);
+            ColorUtility.TryParseHtmlString("#ff0000", out Color failedColor);
+
+            try
+            {
+                var scriptableObjectFile = (FeatureFlagsSettingsScriptableObject)_settingsField.value;
+                if(scriptableObjectFile != null)
+                {
+                    _logs.text = $"ProcessSettingsFile Successfully";
+                    _logs.style.color = new StyleColor(successColor);
+                    _settings = scriptableObjectFile.Settings;
+                    return;
+                }
+
+                _logs.text = $"Failed during ProcessSettingsFile";
+            }
+            catch (Exception e)
+            {
+                _logs.text = $"Failed during ProcessSettingsFile: {e}";
+            }
+
+            _logs.style.color = new StyleColor(failedColor);
+            
         }
 
         /// <summary>
