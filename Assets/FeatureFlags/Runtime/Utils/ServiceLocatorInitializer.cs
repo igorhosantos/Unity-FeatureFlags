@@ -1,4 +1,7 @@
+using FeatureFlags;
 using FeatureFlags.Model;
+using FeatureFlags.Providers;
+using FeatureFlags.Services;
 using UnityEngine;
 
 namespace Utils
@@ -8,9 +11,11 @@ namespace Utils
         [SerializeField] private FeatureFlagsSettingsScriptableObject  featureFlagsSettings;
         private void Awake()
         {
-            //IAssetSpawnerService assetSpawnerService = new AssetSpawnerService(assetSpawnerSettings.Settings);
-            //StartCoroutine(assetSpawnerService.InitializeService());
-            //ServiceLocator.Register(assetSpawnerService);
+            var provider = FeatureFlagProvidersFactory.CreateProvider(featureFlagsSettings.Settings);
+            IFeatureFlagsToolController toolController = new FeatureFlagsToolController();
+            StartCoroutine(provider.InitializeService(toolController));
+            
+            ServiceLocator.Register<IFeatureFlagService>(provider);
         }
     }
 }

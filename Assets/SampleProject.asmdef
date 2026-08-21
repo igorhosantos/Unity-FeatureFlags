@@ -2,7 +2,8 @@
     "name": "SampleProject",
     "rootNamespace": "",
     "references": [
-        "GUID:cda3038f63b298a4487f1a3dbd192f9d"
+        "GUID:cda3038f63b298a4487f1a3dbd192f9d",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [
         "Android",

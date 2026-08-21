@@ -13,21 +13,33 @@ namespace FeatureFlags
     /// <summary>
     /// Class responsible to isolate all the logic from Feature Flag Tool Window
     /// </summary>
-    public class FeatureFlagsToolBehavior
+    public class FeatureFlagsToolController: IFeatureFlagsToolController
     {
-        private const string _dataPath = "Party/Data";
+        
         private FeatureFlagsAppState _currentAppState = new FeatureFlagsAppState();
-        private FeatureFlagsDataInfo _listPartnerDataInfo;
-        public FeatureFlagsDataInfo ListPartnerDataInfo => _listPartnerDataInfo;
-        private string _userId = string.Empty;
-        private bool _usePartnerListData;
-        private List<string> _fallbackFeatureFlags;
 
-        /// <summary>
-        /// Indicates whether this instance is configured for API-only operation (no local files)
-        /// </summary>
-        private bool IsApiOnlyMode => _fallbackFeatureFlags != null && _fallbackFeatureFlags.Count > 0;
+        public FeatureFlagsFileData FetchLocalData()
+        {
+            throw new NotImplementedException();
+        }
 
+        public FeatureFlagsFileData FetchDataFromProvider()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool UpdateLocalFromProvider()
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IFeatureFlagsToolController.OverrideLocalFeatureFlag(BackendEnvironment env, string flagId, bool newValue)
+        {
+            throw new NotImplementedException();
+        }
+
+        public FeatureFlagsFileData FeatureFlagsFileData { get; }
+        
         /// <summary>
         /// Creates a FeatureFlagsFileData with fallback feature flags set to default values
         /// </summary>
@@ -54,23 +66,11 @@ namespace FeatureFlags
             return flagsData;
         }
 
-        public FeatureFlagsToolBehavior(bool usePartnerListData = true)
+        public FeatureFlagsToolController()
         {
-            Initialize(null, usePartnerListData);
-        }
-
-        public FeatureFlagsToolBehavior(List<string> fallbackFeatureFlags)
-        {
-            Initialize(fallbackFeatureFlags, false);
-        }
-
-        private void Initialize(List<string> fallbackFeatureFlags, bool usePartnerListData)
-        {
-            _fallbackFeatureFlags = fallbackFeatureFlags;
-            _usePartnerListData = usePartnerListData;
-
             FetchLocalFeatureFlags();
         }
+        
         public bool EnablingUsageToggle
         {
             get
@@ -87,80 +87,7 @@ namespace FeatureFlags
                 };
 
                 _currentAppState = newState;
-
-                // Only attempt file operations if not in API-only mode
-                if (!IsApiOnlyMode)
-                {
-                    CreateOrUpdateLocalData(newState);
-                }
-            }
-        }
-
-        /// <summary>
-        ///  This Behavior will fetch all the flags that comes from:
-        ///  - Flags Data Info (Scriptable Object
-        ///  - GeniesPartyFeatureFlags (Flags that we're using only on Genies Party)
-        /// </summary>
-        /// <returns></returns>
-        public List<string> FetchFlagsDataInfo()
-        {
-            try
-            {
-                // For API-only mode, use fallback feature flags
-                if (IsApiOnlyMode)
-                {
-                    var apiOnlyList = new List<string>();
-                    if (_fallbackFeatureFlags != null)
-                    {
-                        apiOnlyList.AddRange(_fallbackFeatureFlags);
-                    }
-                    return apiOnlyList;
-                }
-
-                if (_listPartnerDataInfo != null)
-                {
-                    var currentList = new List<string>();
-                    if (_listPartnerDataInfo.Data != null)
-                    {
-                        currentList.AddRange(_listPartnerDataInfo.Data);
-                    }
-                    
-                    return currentList;
-                }
-
-                if (_usePartnerListData)
-                {
-                    FeatureFlagsDataInfo[] dataFiles = Resources.LoadAll<FeatureFlagsDataInfo>(_dataPath);
-
-                    if (dataFiles == null || dataFiles.Length == 0)
-                    {
-                        Debug.LogError($"ListPartnerDataInfo not found it");
-  
-                        return new List<string>();
-                    }
-
-                    _listPartnerDataInfo = dataFiles.FirstOrDefault(d => d.name.Contains("Flag"));
-
-                    if (_listPartnerDataInfo == null)
-                    {
-                        Debug.LogError($"Invalid data info for Feature Flags");
-                        return new List<string>();
-                    }
-                }
-
-                //considering the list from shared feature flag as well
-                var finalList = new List<string>();
-                if (_listPartnerDataInfo != null && _listPartnerDataInfo.Data != null)
-                {
-                    finalList.AddRange(_listPartnerDataInfo.Data);
-                }
-                
-                return finalList;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-                return new List<string>();
+                CreateOrUpdateLocalData(newState);
             }
         }
 
@@ -180,12 +107,7 @@ namespace FeatureFlags
                 };
 
                 _currentAppState = newState;
-
-                // Only attempt file operations if not in API-only mode
-                if (!IsApiOnlyMode)
-                {
-                    CreateOrUpdateLocalData(newState);
-                }
+                CreateOrUpdateLocalData(newState);
             }
         }
 
@@ -333,7 +255,8 @@ namespace FeatureFlags
                 }
 
                 var serializedState = JsonConvert.SerializeObject(currentState, Formatting.Indented);
-                await System.IO.File.WriteAllTextAsync($"{FeatureFlagsUtils.FilePath}", serializedState);
+                public string FilePath = $"{FolderPath}/{FolderName}/{FileName}.json";
+                await System.IO.File.WriteAllTextAsync($"{FilePath}", serializedState);
 
                 AssetDatabase.Refresh();
 
@@ -364,13 +287,5 @@ namespace FeatureFlags
 
             CreateOrUpdateLocalData(newState);
         }
-    }
-
-    [Serializable]
-    public class FeatureFlagsAppState
-    {
-        public bool EnablingUsageToggle;
-        public bool UseLocalVersion;
-        public FeatureFlagsFileData FeatureFlagsFileData;
     }
 }

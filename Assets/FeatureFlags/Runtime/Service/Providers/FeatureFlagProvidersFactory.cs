@@ -1,8 +1,6 @@
-
-using UnityEngine;
 using FeatureFlags.Model;
 using FeatureFlags.Services;
-using FeatureFlags.Model;
+using UnityEngine;
 
 namespace FeatureFlags.Providers
 {
@@ -12,7 +10,18 @@ namespace FeatureFlags.Providers
         {
             FeatureFlagsSettings.Providers providerType = settings.ProviderType;
 
-            return new FeatureFlagsServiceFromPlayerPrefs();
+            switch (providerType)
+            {
+                case FeatureFlagsSettings.Providers.Api:
+                    return new FeatureFlagsServiceFromApi(settings);
+                case FeatureFlagsSettings.Providers.PlayerPrefs:
+                    return new FeatureFlagsServiceFromPlayerPrefs(settings);
+                case FeatureFlagsSettings.Providers.ThirdParty:
+                    return new FeatureFlagsServiceFromThirdParty(settings);
+                default:
+                    Debug.LogError($"Unknown provider type {providerType}");
+                    return null;
+            }
         }
     }
 }

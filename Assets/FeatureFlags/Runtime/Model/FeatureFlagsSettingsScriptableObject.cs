@@ -14,15 +14,15 @@ namespace FeatureFlags.Model
     [Serializable]
     public class FeatureFlagsSettings
     {
-        public const string FolderPath = "Assets/Resources";
-        public const string FolderName = "FeatureFlags";
-        public const string FileName = "localfeatureflagsfile";
-        public static string FilePath = $"{FolderPath}/{FolderName}/{FileName}.json";
-
+        public string DataPath = "Party/Data";
+        public string FolderPath = "Assets/Resources";
+        public string FolderName = "FeatureFlags";
+        public string FileName = "featureflag_manifest.json";
         public enum Providers
         {
             PlayerPrefs = 0,
             Api = 1,
+            ThirdParty = 2,
         }
 
         [SerializeField] private Providers providerType;

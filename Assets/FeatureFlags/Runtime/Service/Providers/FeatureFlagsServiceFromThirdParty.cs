@@ -5,9 +5,9 @@ using FeatureFlags.Services;
 
 namespace FeatureFlags.Providers
 {
-    public class FeatureFlagsServiceFromApi: IFeatureFlagService
+    public class FeatureFlagsServiceFromThirdParty: IFeatureFlagService
     {
-        public FeatureFlagsServiceFromApi(FeatureFlagsSettings settings)
+        public FeatureFlagsServiceFromThirdParty(FeatureFlagsSettings settings)
         {
            
         }

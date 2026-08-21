@@ -4,8 +4,8 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using FeatureFlags;
 using FeatureFlags.Data;
+using FeatureFlags.Model;
 
 namespace FeatureFlags.Editor.Tool
 {
@@ -20,17 +20,17 @@ namespace FeatureFlags.Editor.Tool
         private Label _logs;
         private Label _contentName;
         private ScrollView _splitContents;
-        private ObjectField _dataInfoPathField;
+        private ObjectField _settingsField;
         private Toggle _enablingUsageToggle;
         private Toggle _usingLocalFlagsToggle;
 
         // Controllers and Logic
-        private FeatureFlagsToolBehavior _ffToolBehavior;
+        private IFeatureFlagsToolController _controller;
+        private FeatureFlagsSettings _settings;
         private Dictionary<string, Action> _actions;
         private readonly List<Toggle> _records = new List<Toggle>();
         private readonly List<VisualElement> _containers = new List<VisualElement>();
-        private FeatureFlagsDataInfo _listPartnerDataInfo;
-
+       
 
         [MenuItem("Feature Flags/Open Panel")]
         public static void ShowMyEditor()
@@ -44,7 +44,7 @@ namespace FeatureFlags.Editor.Tool
 
         public void CreateGUI()
         {
-            _ffToolBehavior = new FeatureFlagsToolBehavior();
+            _controller = new FeatureFlagsToolController();
 
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/FeatureFlags/Editor/UIToolkit/FeatureFlagsTool.uxml");
             _rootFromUxml = visualTree.Instantiate();
@@ -70,33 +70,40 @@ namespace FeatureFlags.Editor.Tool
 
             VisualElement toggleContent = _rootFromUxml.Q<VisualElement>("EnablingTool");
             _enablingUsageToggle = toggleContent.Q<Toggle>("EnablingToggle");
-            _enablingUsageToggle.value = _ffToolBehavior.EnablingUsageToggle;
+            _enablingUsageToggle.value = _controller.EnablingUsageToggle;
 
             _usingLocalFlagsToggle = toggleContent.Q<Toggle>("UsingLocalToggle");
-            _usingLocalFlagsToggle.value = _ffToolBehavior.UseLocalVersion;
+            _usingLocalFlagsToggle.value = _controller.UseLocalVersion;
 
             _enablingUsageToggle.RegisterValueChangedCallback(OnEnablingUsageChange);
             _usingLocalFlagsToggle.RegisterValueChangedCallback(OnUsingLocalChange);
-
-            SetupDataInfo();
-
-            AddActions();
             
             //show app version as a readonly
             VisualElement appVersionContent = _rootFromUxml.Q<VisualElement>("AppVersion");
             Label appVersionLabel = appVersionContent.Q<Label>("AppVersionLabel");
             appVersionLabel.text = $"Current App Version: {Application.version}";
+            
+            SetupDataInfo();
+            AddActions();
         }
 
         private void SetupDataInfo()
         {
-            ProcessDataInfo();
+            ProcessSettings();
+            ProcessLocalDataInfo();
+            ProcessDataFromProvider();
+        }
+
+        private void ProcessSettings()
+        {
+            var scriptableObjectFile = (FeatureFlagsSettingsScriptableObject)_settingsField.value;
+            _settings = scriptableObjectFile.Settings;
         }
 
         /// <summary>
         /// setting up the path for getting the data info
         /// </summary>
-        private void ProcessDataInfo()
+        private void ProcessLocalDataInfo()
         {
             _logs.text = string.Empty;
             ColorUtility.TryParseHtmlString("#00ff00", out Color successColor);
@@ -105,44 +112,63 @@ namespace FeatureFlags.Editor.Tool
             try
             {
                 //try to access the local saved version if exists
-                _ffToolBehavior.FetchFlagsDataInfo();
-                _listPartnerDataInfo = _ffToolBehavior.ListPartnerDataInfo;
-
-                if(_listPartnerDataInfo != null)
+                var localData = _controller.FetchLocalData();
+            
+                if(localData != null)
                 {
-                    _logs.text = $"Data Info Successfully loaded";
-                    _logs.style.color = new StyleColor(successColor);
-                    _dataInfoPathField.value = _listPartnerDataInfo;
-                    return;
-                }
-
-                _listPartnerDataInfo = (FeatureFlagsDataInfo)_dataInfoPathField.value;
-                if(_listPartnerDataInfo != null)
-                {
-                    _logs.text = $"Data Info Successfully loaded";
+                    _logs.text = $"Local Data Successfully Loaded";
                     _logs.style.color = new StyleColor(successColor);
                     return;
                 }
 
-                _logs.text = $"Invalid Path for Party Data Info";
-                _dataInfoPathField.value = null;
+                _logs.text = $"Invalid Local Data";
             }
             catch (Exception e)
             {
-                _logs.text = $"Invalid Path for Party Data Info \n {e}";
-                _dataInfoPathField.value = null;
+                _logs.text = $"Invalid Local Data \n {e}";
             }
 
             _logs.style.color = new StyleColor(failedColor);
         }
 
+        /// <summary>
+        /// setting up the path for getting the data info
+        /// </summary>
+        private void ProcessDataFromProvider()
+        {
+            _logs.text = string.Empty;
+            ColorUtility.TryParseHtmlString("#00ff00", out Color successColor);
+            ColorUtility.TryParseHtmlString("#ff0000", out Color failedColor);
+
+            try
+            {
+                //try to access the local saved version if exists
+                var localData = _controller.FetchDataFromProvider();
+            
+                if(localData != null)
+                {
+                    _logs.text = $"Local Data Successfully Loaded";
+                    _logs.style.color = new StyleColor(successColor);
+                    return;
+                }
+
+                _logs.text = $"Invalid Local Data";
+            }
+            catch (Exception e)
+            {
+                _logs.text = $"Invalid Local Data \n {e}";
+            }
+
+            _logs.style.color = new StyleColor(failedColor);
+        }
+        
         private void OnEnablingUsageChange(ChangeEvent<bool> evt)
         {
-            _ffToolBehavior.EnablingUsageToggle = evt.newValue;
+            _controller.EnablingUsageToggle = evt.newValue;
         }
         private void OnUsingLocalChange(ChangeEvent<bool> evt)
         {
-            _ffToolBehavior.UseLocalVersion = evt.newValue;
+            _controller.UseLocalVersion = evt.newValue;
         }
 
         private void AddActions()
@@ -197,20 +223,15 @@ namespace FeatureFlags.Editor.Tool
 
         private void ProcessUpdateLocalFromBackend()
         {
-            var result = _ffToolBehavior.UpdateLocalFromBackend();
+            var result = _controller.UpdateLocalFromProvider();
              _logs.text = result ? "Updated Successfully!" : "Error during update, check the logs";
         }
 
         private void ProcessContent(bool isLocal = false)
         {
             RemoveAllContent();
-
-            var finalList = new List<string>();
-            finalList.AddRange(_listPartnerDataInfo.Data);
-           
-            FeatureFlagsFileData response = isLocal ?
-                _ffToolBehavior.FetchLocalFeatureFlags() :
-                _ffToolBehavior.FetchApiFeatureFlags(finalList, requestDev:true, requestProd:true);
+            
+            FeatureFlagsFileData response = isLocal ? _controller.FetchLocalData() : _controller.FetchDataFromProvider();
             
             if (response == null)
             {
@@ -244,7 +265,7 @@ namespace FeatureFlags.Editor.Tool
             var container = new ScrollView();
             var textTitle = new Label(environmentId.ToString());
 
-            //align environment visual elements horizontaly
+            //align environment visual elements horizontally
             container.style.width = new StyleLength(250);
             container.mode = ScrollViewMode.Vertical;
 
@@ -280,7 +301,7 @@ namespace FeatureFlags.Editor.Tool
         private void NotifyLocalChange(BackendEnvironment env, string flagId, bool newValue)
         {
             Debug.Log($"Override from toggle: {env} - {flagId} - {newValue}");
-            _ffToolBehavior.OverrideLocalFeatureFlag(env, flagId, newValue);
+            var result = _controller.OverrideLocalFeatureFlag(env, flagId, newValue);
         }
 
     }

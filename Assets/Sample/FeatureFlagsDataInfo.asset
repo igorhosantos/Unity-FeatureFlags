@@ -13,4 +13,7 @@ MonoBehaviour:
   m_Name: FeatureFlagsDataInfo
   m_EditorClassIdentifier: FeatureFlags::FeatureFlags.FeatureFlagsDataInfo
   _data:
-  - 
+  - hud_a
+  - hud_b
+  - feature_x
+  - feature_y

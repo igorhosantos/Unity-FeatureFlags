@@ -1,13 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace FeatureFlags.Services
 {
     public interface IFeatureFlagService
     {
-        Dictionary<string,bool> GetAllFeatureFlagsStatus();
-        void SetFeatureFlagOverride(string featureFlag, Func<bool> isEnabledGetter);
-        void RemoveFeatureFlagOverride(string featureFlag);
-        bool IsFeatureEnabled(string featureFlag);
+        IEnumerator InitializeService(IFeatureFlagsToolController toolController);
+        Dictionary<string,bool> GetAllFlags();
+        bool IsFlagEnabled(string featureFlag);
     }
 }
