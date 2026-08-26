@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -83,6 +84,12 @@ namespace FeatureFlags.Editor.Tool
             Label appVersionLabel = appVersionContent.Q<Label>("AppVersionLabel");
             appVersionLabel.text = $"Current App Version: {Application.version}";
             
+            VisualElement dataInfoContainer = _rootFromUxml.Q<VisualElement>("DataInfoContainer");
+            _settingsField = dataInfoContainer.Q<ObjectField>("ObjectFieldDataInfo");
+            
+            Button button  = dataInfoContainer.Q<Button>("DataInfoButton");
+            button.clicked += SetupDataInfo;
+            
             SetupDataInfo();
             AddActions();
         }
@@ -102,12 +109,32 @@ namespace FeatureFlags.Editor.Tool
 
             try
             {
+                //find one settings file already set
                 var scriptableObjectFile = (FeatureFlagsSettingsScriptableObject)_settingsField.value;
                 if(scriptableObjectFile != null)
                 {
                     _logs.text = $"ProcessSettingsFile Successfully";
                     _logs.style.color = new StyleColor(successColor);
                     _settings = scriptableObjectFile.Settings;
+                    return;
+                }
+                
+                //try to search a valid settings file in the project
+                var allAvailableSettingsGuids = AssetDatabase.FindAssets($"t:{nameof(FeatureFlagsSettingsScriptableObject)}");
+                var allAvailableSettings = allAvailableSettingsGuids
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Select(AssetDatabase.LoadAssetAtPath<FeatureFlagsSettingsScriptableObject>)
+                    .Where(asset => asset != null)
+                    .ToArray();
+
+                var searchedSettings = allAvailableSettings.First();
+                
+                if(searchedSettings != null)
+                {
+                    _logs.text = $"ProcessSettingsFile Successfully";
+                    _logs.style.color = new StyleColor(successColor);
+                    _settingsField.value = searchedSettings;
+                    _settings = searchedSettings.Settings;
                     return;
                 }
 
