@@ -27,7 +27,6 @@ namespace FeatureFlags.Editor.Tool
 
         // Controllers and Logic
         private IFeatureFlagsToolController _controller;
-        private FeatureFlagsSettings _settings;
         private Dictionary<string, Action> _actions;
         private readonly List<Toggle> _records = new List<Toggle>();
         private readonly List<VisualElement> _containers = new List<VisualElement>();
@@ -115,7 +114,7 @@ namespace FeatureFlags.Editor.Tool
                 {
                     _logs.text = $"ProcessSettingsFile Successfully";
                     _logs.style.color = new StyleColor(successColor);
-                    _settings = scriptableObjectFile.Settings;
+                    _controller.Initialize(scriptableObjectFile.Settings);
                     return;
                 }
                 
@@ -134,7 +133,7 @@ namespace FeatureFlags.Editor.Tool
                     _logs.text = $"ProcessSettingsFile Successfully";
                     _logs.style.color = new StyleColor(successColor);
                     _settingsField.value = searchedSettings;
-                    _settings = searchedSettings.Settings;
+                    _controller.Initialize(scriptableObjectFile.Settings);
                     return;
                 }
 

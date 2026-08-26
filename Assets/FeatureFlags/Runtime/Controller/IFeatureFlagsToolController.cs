@@ -1,11 +1,14 @@
 using System;
 using FeatureFlags.Data;
+using FeatureFlags.Model;
+using FeatureFlags.Services;
 
 
 namespace FeatureFlags
 {
     public interface IFeatureFlagsToolController
     {
+        void Initialize(FeatureFlagsSettings settings, IFeatureFlagService service = null);
         bool EnablingUsageToggle { get; set; }
         bool UseLocalVersion { get; set; }
         

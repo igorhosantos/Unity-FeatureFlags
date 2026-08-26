@@ -7,6 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using Exception = System.Exception;
 using FeatureFlags.Data;
+using FeatureFlags.Model;
+using FeatureFlags.Providers;
+using FeatureFlags.Services;
 
 namespace FeatureFlags
 {
@@ -15,9 +18,16 @@ namespace FeatureFlags
     /// </summary>
     public class FeatureFlagsToolController: IFeatureFlagsToolController
     {
-        
         private FeatureFlagsAppState _currentAppState = new FeatureFlagsAppState();
+        private FeatureFlagsSettings _settings;
+        private IFeatureFlagService _service;
 
+        public void Initialize(FeatureFlagsSettings settings, IFeatureFlagService service = null)
+        {
+            _settings = settings;
+            if (service == null) _service = FeatureFlagProvidersFactory.CreateProvider(settings);
+        }
+        
         public FeatureFlagsFileData FetchLocalData()
         {
             throw new NotImplementedException();
@@ -71,6 +81,7 @@ namespace FeatureFlags
             FetchLocalFeatureFlags();
         }
         
+
         public bool EnablingUsageToggle
         {
             get

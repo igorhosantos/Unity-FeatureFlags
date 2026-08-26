@@ -13,8 +13,10 @@ namespace Utils
         {
             var provider = FeatureFlagProvidersFactory.CreateProvider(featureFlagsSettings.Settings);
             IFeatureFlagsToolController toolController = new FeatureFlagsToolController();
-            StartCoroutine(provider.InitializeService(toolController));
             
+            toolController.Initialize(featureFlagsSettings.Settings, provider);
+            StartCoroutine(provider.InitializeService(toolController));
+
             ServiceLocator.Register<IFeatureFlagService>(provider);
         }
     }
