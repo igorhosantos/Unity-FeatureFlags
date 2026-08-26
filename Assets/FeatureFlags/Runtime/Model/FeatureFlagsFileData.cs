@@ -17,7 +17,8 @@ namespace FeatureFlags
         {
             Data = new Dictionary<BackendEnvironment, Dictionary<string, bool>>();
         }
-
+        
+        
         public void SetDataPerEnvironment(BackendEnvironment environmentId, Dictionary<string, bool> flags)
         {
             //validate if we need to update or add a new env

@@ -12,3 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 104b0493d1ccf9548b6436613d6add8f, type: 3}
   m_Name: FeatureFlagsSettingsScriptableObject
   m_EditorClassIdentifier: FeatureFlags::FeatureFlags.Model.FeatureFlagsSettingsScriptableObject
+  settings:
+    DataPath: Party/Data
+    FolderPath: Assets/Resources
+    FolderName: FeatureFlags
+    FileName: featureflag_manifest.json
+    providerType: 0
+    featureFlagsDataInfo: {fileID: 11400000, guid: 7859afe26b101de4387f25d7f8cf7086, type: 2}

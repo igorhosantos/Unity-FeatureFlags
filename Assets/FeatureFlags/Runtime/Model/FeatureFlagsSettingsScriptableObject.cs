@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace FeatureFlags.Model
@@ -26,6 +27,10 @@ namespace FeatureFlags.Model
         }
 
         [SerializeField] private Providers providerType;
+        
+        [Header("(CanBeNull) List of FlagIds")]
+        [SerializeField][CanBeNull] private FeatureFlagsDataInfo featureFlagsDataInfo;
         public Providers ProviderType => providerType;
+        public FeatureFlagsDataInfo FeatureFlagsDataInfo => featureFlagsDataInfo;
     }
 }

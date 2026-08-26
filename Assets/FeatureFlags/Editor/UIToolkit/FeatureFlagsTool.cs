@@ -133,7 +133,7 @@ namespace FeatureFlags.Editor.Tool
                     _logs.text = $"ProcessSettingsFile Successfully";
                     _logs.style.color = new StyleColor(successColor);
                     _settingsField.value = searchedSettings;
-                    _controller.Initialize(scriptableObjectFile.Settings);
+                    _controller.Initialize(searchedSettings.Settings);
                     return;
                 }
 

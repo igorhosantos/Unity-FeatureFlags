@@ -30,12 +30,14 @@ namespace FeatureFlags
         
         public FeatureFlagsFileData FetchLocalData()
         {
-            throw new NotImplementedException();
+            var flagData = _service.GetAllFlags();
+            return flagData;
         }
 
         public FeatureFlagsFileData FetchDataFromProvider()
         {
-            throw new NotImplementedException();
+            var flagData = _service.GetAllFlags();
+            return flagData;
         }
 
         public bool UpdateLocalFromProvider()

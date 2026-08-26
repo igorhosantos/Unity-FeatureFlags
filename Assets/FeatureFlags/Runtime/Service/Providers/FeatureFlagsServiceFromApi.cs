@@ -17,7 +17,7 @@ namespace FeatureFlags.Providers
             throw new System.NotImplementedException();
         }
 
-        public Dictionary<string, bool> GetAllFlags()
+        public FeatureFlagsFileData GetAllFlags()
         {
             throw new System.NotImplementedException();
         }
