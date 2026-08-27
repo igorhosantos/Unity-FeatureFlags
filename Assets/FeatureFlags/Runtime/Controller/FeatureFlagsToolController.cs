@@ -23,11 +23,18 @@ namespace FeatureFlags
         private FeatureFlagsAppState _currentAppState = new FeatureFlagsAppState();
         private FeatureFlagsSettings _settings;
         private IFeatureFlagService _service;
-
+        public FeatureFlagsFileData FeatureFlagsFileData { get; }
+        
+        /// <summary>
+        /// initialize with local file as a source of truth(if exist)
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="service"></param>
         public void Initialize(FeatureFlagsSettings settings, IFeatureFlagService service = null)
         {
             _settings = settings;
             if (service == null) _service = FeatureFlagProvidersFactory.CreateProvider(settings);
+            FetchLocalData();
         }
         
         /// <summary>
@@ -52,12 +59,29 @@ namespace FeatureFlags
             throw new NotImplementedException();
         }
 
-        bool IFeatureFlagsToolController.OverrideLocalFeatureFlag(BackendEnvironment env, string flagId, bool newValue)
+        public bool OverrideLocalFeatureFlag(BackendEnvironment env, string flagId, bool newValue)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                FeatureFlagsFileData newFileData = _currentAppState.FeatureFlagsFileData;
+                newFileData.Data[env][flagId] = newValue;
 
-        public FeatureFlagsFileData FeatureFlagsFileData { get; }
+                var newState = new FeatureFlagsAppState()
+                {
+                    EnablingUsageToggle = _currentAppState.EnablingUsageToggle,
+                    UseLocalVersion = _currentAppState.UseLocalVersion,
+                    FeatureFlagsFileData = newFileData,
+                };
+
+                var result = UpdateLocalData(newState);
+                return result;
+            }
+            catch (Exception e)
+            {
+               Debug.LogError($"Error during override of local flags: {e}");
+               return false;
+            }
+        }
         
         /// <summary>
         /// Creates a FeatureFlagsFileData with fallback feature flags set to default values
@@ -67,12 +91,6 @@ namespace FeatureFlags
             var flagData = _service.GetAllFlags();
             return flagData;
         }
-
-        public FeatureFlagsToolController()
-        {
-            
-        }
-        
 
         public bool EnablingUsageToggle
         {
@@ -235,21 +253,6 @@ namespace FeatureFlags
             return false;
 #endif
 
-        }
-
-        public void OverrideLocalFeatureFlag(BackendEnvironment env, string flagId, bool newValue)
-        {
-            FeatureFlagsFileData newFileData = _currentAppState.FeatureFlagsFileData;
-            newFileData.Data[env][flagId] = newValue;
-
-            var newState = new FeatureFlagsAppState()
-            {
-                EnablingUsageToggle = _currentAppState.EnablingUsageToggle,
-                UseLocalVersion = _currentAppState.UseLocalVersion,
-                FeatureFlagsFileData = newFileData,
-            };
-
-            UpdateLocalData(newState);
         }
     }
 }

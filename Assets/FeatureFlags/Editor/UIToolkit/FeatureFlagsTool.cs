@@ -52,15 +52,7 @@ namespace FeatureFlags.Editor.Tool
 
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/FeatureFlags/Editor/UIToolkit/FeatureFlagsTool.uss");
             rootVisualElement.styleSheets.Add(styleSheet);
-
-            _actions = new Dictionary<string, Action>
-            {
-                {"Get Flags From Provider", FetchAllFlagsApi},
-                {"Get Local Flags", FetchAllFlagsFromLocal},
-                {"Update Local Flags From Provider", UpdateLocalFromBackend},
-            };
-
-
+            
             VisualElement buttons = _rootFromUxml.Q<VisualElement>("Options");
 
             _actionList = buttons.Q<ScrollView>("ActionList");
@@ -70,13 +62,8 @@ namespace FeatureFlags.Editor.Tool
 
             VisualElement toggleContent = _rootFromUxml.Q<VisualElement>("EnablingTool");
             _enablingUsageToggle = toggleContent.Q<Toggle>("EnablingToggle");
-            _enablingUsageToggle.value = _controller.EnablingUsageToggle;
-
+            
             _usingLocalFlagsToggle = toggleContent.Q<Toggle>("UsingLocalToggle");
-            _usingLocalFlagsToggle.value = _controller.UseLocalVersion;
-
-            _enablingUsageToggle.RegisterValueChangedCallback(OnEnablingUsageChange);
-            _usingLocalFlagsToggle.RegisterValueChangedCallback(OnUsingLocalChange);
             
             //show app version as a readonly
             VisualElement appVersionContent = _rootFromUxml.Q<VisualElement>("AppVersion");
@@ -91,15 +78,26 @@ namespace FeatureFlags.Editor.Tool
             
             ProcessSettingsFile();
             AddActions();
+            ProcessInitializationSync();
         }
         
         private void AddActions()
         {
+            _actions = new Dictionary<string, Action>
+            {
+                {"Get Flags From Provider", FetchAllFlagsApi},
+                {"Get Local Flags", FetchAllFlagsFromLocal},
+                {"Update Local Flags From Provider", UpdateLocalFromBackend},
+            };
+            
             foreach (var action in _actions)
             {
                 var button = AddActionButton(action.Key, action.Value);
                 _actionList.Add(button);
             }
+            
+            _enablingUsageToggle.RegisterValueChangedCallback(OnEnablingUsageChange);
+            _usingLocalFlagsToggle.RegisterValueChangedCallback(OnUsingLocalChange);
         }
         
         private void ProcessSettingsFile()
@@ -148,6 +146,12 @@ namespace FeatureFlags.Editor.Tool
 
             _logs.style.color = new StyleColor(failedColor);
             
+        }
+
+        private void ProcessInitializationSync()
+        {
+            _enablingUsageToggle.value = _controller.EnablingUsageToggle;
+            _usingLocalFlagsToggle.value = _controller.UseLocalVersion;
         }
 
         /// <summary>

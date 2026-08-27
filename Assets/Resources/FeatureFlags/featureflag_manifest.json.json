@@ -1,10 +1,10 @@
 {
-  "EnablingUsageToggle": false,
-  "UseLocalVersion": false,
+  "EnablingUsageToggle": true,
+  "UseLocalVersion": true,
   "FeatureFlagsFileData": {
     "Data": {
       "Dev": {
-        "hud_a": false,
+        "hud_a": true,
         "hud_b": false,
         "feature_x": false,
         "feature_y": false
@@ -12,8 +12,8 @@
       "Prod": {
         "hud_a": false,
         "hud_b": false,
-        "feature_x": false,
-        "feature_y": false
+        "feature_x": true,
+        "feature_y": true
       }
     }
   }
