@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
+using Newtonsoft.Json;
 using UnityEditor;
 #endif
 using UnityEngine;
@@ -10,6 +11,7 @@ using FeatureFlags.Data;
 using FeatureFlags.Model;
 using FeatureFlags.Providers;
 using FeatureFlags.Services;
+
 
 namespace FeatureFlags
 {
@@ -28,10 +30,15 @@ namespace FeatureFlags
             if (service == null) _service = FeatureFlagProvidersFactory.CreateProvider(settings);
         }
         
+        /// <summary>
+        ///  Check the settings path configuration to access local manifest if exist
+        ///  If not it will create the first manifest and set the default file
+        /// </summary>
+        /// <returns></returns>
         public FeatureFlagsFileData FetchLocalData()
         {
-            var flagData = _service.GetAllFlags();
-            return flagData;
+            var result = TryFetchLocalFeatureFlags();
+            return result;
         }
 
         public FeatureFlagsFileData FetchDataFromProvider()
@@ -57,30 +64,13 @@ namespace FeatureFlags
         /// </summary>
         private FeatureFlagsFileData CreateFeatureFlagsWithDefaults()
         {
-            var flagsData = new FeatureFlagsFileData();
-            
-           /* // Get the list of flags to populate
-            var flagsToPopulate = new List<string>();
-            if (_fallbackFeatureFlags != null)
-            {
-                flagsToPopulate.AddRange(_fallbackFeatureFlags);
-            }
-            
-            // Remove duplicates
-            flagsToPopulate = flagsToPopulate.Distinct().ToList();
-            
-            // Create default flag dictionaries for both environments
-            var defaultFlags = flagsToPopulate.ToDictionary(flag => flag, flag => false);
-            
-            flagsData.SetDataPerEnvironment(BackendEnvironment.Dev, new Dictionary<string, bool>(defaultFlags));
-            flagsData.SetDataPerEnvironment(BackendEnvironment.Prod, new Dictionary<string, bool>(defaultFlags));*/
-            
-            return flagsData;
+            var flagData = _service.GetAllFlags();
+            return flagData;
         }
 
         public FeatureFlagsToolController()
         {
-            FetchLocalFeatureFlags();
+            
         }
         
 
@@ -100,7 +90,7 @@ namespace FeatureFlags
                 };
 
                 _currentAppState = newState;
-                CreateOrUpdateLocalData(newState);
+                UpdateLocalData(newState);
             }
         }
 
@@ -120,7 +110,7 @@ namespace FeatureFlags
                 };
 
                 _currentAppState = newState;
-                CreateOrUpdateLocalData(newState);
+                UpdateLocalData(newState);
             }
         }
 
@@ -172,29 +162,16 @@ namespace FeatureFlags
         /// It will try to access the file that already exist,otherwise return and error
         /// </summary>
         /// <returns></returns>
-        public FeatureFlagsFileData FetchLocalFeatureFlags()
+        private FeatureFlagsFileData TryFetchLocalFeatureFlags()
         {
-            return CreateFeatureFlagsWithDefaults();
-            /*
-            // For API-only mode, initialize with defaults and skip file loading
-            if (IsApiOnlyMode)
-            {
-                var defaultFeatureFlagsData = CreateFeatureFlagsWithDefaults();
-                _currentAppState = new FeatureFlagsAppState()
-                {
-                    EnablingUsageToggle = false,
-                    UseLocalVersion = false,
-                    FeatureFlagsFileData = defaultFeatureFlagsData
-                };
-                return defaultFeatureFlagsData;
-            }
-
             try
             {
-                TextAsset file = Resources.Load<TextAsset>($"{FeatureFlagsUtils.FolderName}/{FeatureFlagsUtils.FileName}");
+                TextAsset file = Resources.Load<TextAsset>($"{_settings.FolderName}/{_settings.FileName}");
                 if (file == null)
                 {
-                    return CreateFeatureFlagsWithDefaults();
+                    var defaults = CreateFeatureFlagsWithDefaults();
+                    UpdateLocalData(defaults);
+                    return defaults;
                 }
 
                 _currentAppState = JsonConvert.DeserializeObject<FeatureFlagsAppState>(file.text);
@@ -204,29 +181,12 @@ namespace FeatureFlags
             catch (Exception e)
             {
                 Debug.LogError(e);
-                return CreateFeatureFlagsWithDefaults();
-            }*/
-        }
-
-        /// <summary>
-        /// It will create or update the local file based on the BE data
-        /// </summary>
-        /// <returns></returns>
-        public FeatureFlagsFileData FetchApiFeatureFlags(List<string> availableFlags, bool requestDev, bool requestProd)
-        {
-            try
-            {
-
-                return new FeatureFlagsFileData();
+                var defaults = CreateFeatureFlagsWithDefaults();
+                UpdateLocalData(defaults);
+                return defaults;
             }
-            catch (Exception e)
-            {
-                Debug.LogWarning(e);
-            }
-
-            return CreateFeatureFlagsWithDefaults();
         }
-
+        
         private Dictionary<string,bool> ProcessFlagsByEnvironment(Dictionary<string, object> data)
         {
             var dictio = data
@@ -234,25 +194,16 @@ namespace FeatureFlags
 
             return dictio;
         }
-
-
-        private bool CreateOrUpdateLocalData(FeatureFlagsAppState newAppState)
+        
+        private bool UpdateLocalData(FeatureFlagsAppState newAppState)
         {
             _currentAppState = newAppState;
-            return CreateOrUpdateLocalData(_currentAppState.FeatureFlagsFileData);
+            return UpdateLocalData(_currentAppState.FeatureFlagsFileData);
         }
 
-        private bool CreateOrUpdateLocalData(FeatureFlagsFileData fileData)
+        private bool UpdateLocalData(FeatureFlagsFileData fileData)
         {
-            return false;
-            /*
 #if UNITY_EDITOR
-            // Skip file operations entirely in API-only mode
-            if (IsApiOnlyMode)
-            {
-                return false;
-            }
-
             try
             {
                 var currentState = new FeatureFlagsAppState()
@@ -262,14 +213,14 @@ namespace FeatureFlags
                     FeatureFlagsFileData = fileData,
                 };
 
-                if (!AssetDatabase.IsValidFolder($"{FeatureFlagsUtils.FolderPath}/{FeatureFlagsUtils.FolderName}"))
+                if (!AssetDatabase.IsValidFolder($"{_settings.FolderPath}/{_settings.FolderName}"))
                 {
-                    AssetDatabase.CreateFolder(FeatureFlagsUtils.FolderPath, FeatureFlagsUtils.FolderName);
+                    AssetDatabase.CreateFolder(_settings.FolderPath, _settings.FolderName);
                 }
 
                 var serializedState = JsonConvert.SerializeObject(currentState, Formatting.Indented);
-                public string FilePath = $"{FolderPath}/{FolderName}/{FileName}.json";
-                await System.IO.File.WriteAllTextAsync($"{FilePath}", serializedState);
+                var filePath = $"{_settings.FolderPath}/{_settings.FolderName}/{_settings.FileName}.json";
+                System.IO.File.WriteAllText($"{filePath}", serializedState);
 
                 AssetDatabase.Refresh();
 
@@ -283,7 +234,7 @@ namespace FeatureFlags
 #else
             return false;
 #endif
-*/
+
         }
 
         public void OverrideLocalFeatureFlag(BackendEnvironment env, string flagId, bool newValue)
@@ -298,7 +249,7 @@ namespace FeatureFlags
                 FeatureFlagsFileData = newFileData,
             };
 
-            CreateOrUpdateLocalData(newState);
+            UpdateLocalData(newState);
         }
     }
 }

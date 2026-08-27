@@ -42,7 +42,7 @@ namespace FeatureFlags.Editor.Tool
             wnd.maxSize = new Vector2(1920, 720);
         }
 
-        public void CreateGUI()
+        private void CreateGUI()
         {
             _controller = new FeatureFlagsToolController();
 
@@ -87,19 +87,21 @@ namespace FeatureFlags.Editor.Tool
             _settingsField = dataInfoContainer.Q<ObjectField>("ObjectFieldDataInfo");
             
             Button button  = dataInfoContainer.Q<Button>("DataInfoButton");
-            button.clicked += SetupDataInfo;
+            button.clicked += ProcessSettingsFile;
             
-            SetupDataInfo();
+            ProcessSettingsFile();
             AddActions();
         }
-
-        private void SetupDataInfo()
+        
+        private void AddActions()
         {
-            ProcessSettingsFile();
-            //ProcessLocalDataInfo();
-            //ProcessDataFromProvider();
+            foreach (var action in _actions)
+            {
+                var button = AddActionButton(action.Key, action.Value);
+                _actionList.Add(button);
+            }
         }
-
+        
         private void ProcessSettingsFile()
         { 
             _logs.text = string.Empty;
@@ -217,16 +219,6 @@ namespace FeatureFlags.Editor.Tool
         private void OnUsingLocalChange(ChangeEvent<bool> evt)
         {
             _controller.UseLocalVersion = evt.newValue;
-        }
-
-        private void AddActions()
-        {
-            foreach (var action in _actions)
-            {
-                var button = AddActionButton(action.Key, action.Value);
-                _actionList.Add(button);
-
-            }
         }
 
         private void RemoveAllContent()
