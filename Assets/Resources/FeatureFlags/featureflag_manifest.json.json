@@ -6,8 +6,8 @@
       "Dev": {
         "hud_a": true,
         "hud_b": false,
-        "feature_x": false,
-        "feature_y": false
+        "feature_x": true,
+        "feature_y": true
       },
       "Prod": {
         "hud_a": false,

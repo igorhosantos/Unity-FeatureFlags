@@ -22,7 +22,7 @@ public class SampleStartup : MonoBehaviour
     {
         IFeatureFlagService service = ServiceLocator.Get<IFeatureFlagService>();
         
-        var newHud = service.IsFlagEnabled("hud_new");
+        var newHud = service.IsFlagEnabled("hud_b");
         _runtimeHud  = newHud ?  hudB : hudA;
         _runtimeHud.gameObject.SetActive(true);
 

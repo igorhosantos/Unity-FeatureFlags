@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: FeatureFlagsSettingsScriptableObject
   m_EditorClassIdentifier: FeatureFlags::FeatureFlags.Model.FeatureFlagsSettingsScriptableObject
   settings:
-    DataPath: Party/Data
     FolderPath: Assets/Resources
     FolderName: FeatureFlags
     FileName: featureflag_manifest.json
+    environment: 1
     providerType: 0
     featureFlagsDataInfo: {fileID: 11400000, guid: 7859afe26b101de4387f25d7f8cf7086, type: 2}

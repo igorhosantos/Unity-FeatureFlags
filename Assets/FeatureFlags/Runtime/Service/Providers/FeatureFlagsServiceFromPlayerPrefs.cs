@@ -1,9 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using FeatureFlags.Data;
 using FeatureFlags.Model;
 using FeatureFlags.Services;
+using Unity.Plastic.Newtonsoft.Json;
+using UnityEngine;
 
 namespace FeatureFlags.Providers
 {
@@ -12,7 +13,7 @@ namespace FeatureFlags.Providers
         private IFeatureFlagsToolController _toolController;
         private FeatureFlagsSettings _settings;
         private FeatureFlagsDataInfo _dataInfo;
-        private readonly Dictionary<string, bool> _flags = new Dictionary<string, bool>();
+        private FeatureFlagsFileData _flagsData;
         public FeatureFlagsServiceFromPlayerPrefs(FeatureFlagsSettings settings)
         {
            _settings = settings;
@@ -22,29 +23,42 @@ namespace FeatureFlags.Providers
         public IEnumerator InitializeService(IFeatureFlagsToolController toolController)
         {
             _toolController = toolController;
-            yield return null;
+            _flagsData = GetAllFlags();
+            yield return null; 
         }
 
         public FeatureFlagsFileData GetAllFlags()
-        {
-           var fileData = new FeatureFlagsFileData();
-           
-           var dictio = _dataInfo.Data.ToDictionary(kvp => kvp, kvp => false);
-           
-           fileData.SetDataPerEnvironment(BackendEnvironment.Dev, dictio);
-           fileData.SetDataPerEnvironment(BackendEnvironment.Prod, dictio);
-           
-           return fileData;
+        { 
+            try
+            {
+                var jsonFile = PlayerPrefs.GetString(_settings.FeatureId);
+
+                if (string.IsNullOrEmpty(jsonFile))
+                {
+                    var serializedDefaultFlags = JsonConvert.SerializeObject(_toolController.LocalFlags);
+                    PlayerPrefs.SetString(_settings.FeatureId, serializedDefaultFlags);
+                    jsonFile = PlayerPrefs.GetString(_settings.FeatureId);
+                }
+
+                var fileData = JsonConvert.DeserializeObject<FeatureFlagsFileData>(jsonFile);
+                return fileData;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error on getting all flags: {e.Message}");
+                return null;
+            }
         }
 
         public bool IsFlagEnabled(string featureFlag)
         {
-            if (_flags.TryGetValue(featureFlag, out bool value))
+            //check local file 
+            if (_toolController.UseLocalVersion)
             {
-                return value;
+                return _toolController.LocalFlags.Data[_settings.Environment].GetValueOrDefault(featureFlag, false);
             }
             
-            return false;
+            return _flagsData.Data[_settings.Environment].GetValueOrDefault(featureFlag, false);
         }
     }
 }

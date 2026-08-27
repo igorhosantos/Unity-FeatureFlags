@@ -23,7 +23,7 @@ namespace FeatureFlags
         private FeatureFlagsAppState _currentAppState = new FeatureFlagsAppState();
         private FeatureFlagsSettings _settings;
         private IFeatureFlagService _service;
-        public FeatureFlagsFileData FeatureFlagsFileData { get; }
+        public FeatureFlagsFileData LocalFlags { get; private set; }
         
         /// <summary>
         /// initialize with local file as a source of truth(if exist)
@@ -45,6 +45,7 @@ namespace FeatureFlags
         public FeatureFlagsFileData FetchLocalData()
         {
             var result = TryFetchLocalFeatureFlags();
+            LocalFlags = result;
             return result;
         }
 

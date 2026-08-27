@@ -17,6 +17,8 @@ namespace FeatureFlags
 
         bool UpdateLocalFromProvider();
         bool OverrideLocalFeatureFlag(BackendEnvironment env, string flagId, bool newValue);
+
+        FeatureFlagsFileData LocalFlags { get; }
     }
 
     [Serializable]

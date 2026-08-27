@@ -1,4 +1,5 @@
 using System;
+using FeatureFlags.Data;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace FeatureFlags.Model
     [Serializable]
     public class FeatureFlagsSettings
     {
-        public string DataPath = "Party/Data";
+        public string FeatureId = "featureflags";
         public string FolderPath = "Assets/Resources";
         public string FolderName = "FeatureFlags";
         public string FileName = "featureflag_manifest.json";
@@ -26,11 +27,13 @@ namespace FeatureFlags.Model
             ThirdParty = 2,
         }
 
+        [SerializeField] private BackendEnvironment environment;
         [SerializeField] private Providers providerType;
         
         [Header("(CanBeNull) List of FlagIds")]
         [SerializeField][CanBeNull] private FeatureFlagsDataInfo featureFlagsDataInfo;
         public Providers ProviderType => providerType;
         public FeatureFlagsDataInfo FeatureFlagsDataInfo => featureFlagsDataInfo;
+        public BackendEnvironment Environment => environment;
     }
 }
