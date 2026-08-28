@@ -57,7 +57,24 @@ namespace FeatureFlags
 
         public bool UpdateLocalFromProvider()
         {
-            throw new NotImplementedException();
+#if UNITY_EDITOR
+            try
+            {
+                var dataFromProvider = FetchDataFromProvider();
+                
+                UpdateLocalData(dataFromProvider);
+                LocalFlags = dataFromProvider;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return false;
+            }
+#else
+            return false;
+#endif
         }
 
         public bool OverrideLocalFeatureFlag(BackendEnvironment env, string flagId, bool newValue)
@@ -131,50 +148,6 @@ namespace FeatureFlags
                 _currentAppState = newState;
                 UpdateLocalData(newState);
             }
-        }
-
-        /// <summary>
-        /// It will try to access the file that already exist,otherwise return and error
-        /// </summary>
-        /// <returns></returns>
-        public bool UpdateLocalFromBackend()
-        {
-            return false;
-            /*
-#if UNITY_EDITOR
-            try
-            {
-                await FetchFlagsDataInfo();
-
-                //considering the list from shared feature flag as well
-                var finalList = new List<string>();
-                finalList.AddRange(_listPartnerDataInfo.Data);
-                finalList.AddRange(SharedFeatureFlags.GetList());
-
-                FeatureFlagsFileData apiVersion = await FetchApiFeatureFlags(finalList, requestDev:true, requestProd:true);
-
-                if (!AssetDatabase.IsValidFolder($"{FeatureFlagsUtils.FolderPath}/{FeatureFlagsUtils.FolderName}"))
-                {
-                    AssetDatabase.CreateFolder(FeatureFlagsUtils.FolderPath, FeatureFlagsUtils.FolderName);
-                }
-
-                var serialized = JsonConvert.SerializeObject(apiVersion, Formatting.Indented);
-
-                await System.IO.File.WriteAllTextAsync($"{FeatureFlagsUtils.FilePath}", serialized);
-                await CreateOrUpdateLocalData(apiVersion);
-
-                return true;
-
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-                return false;
-            }
-#else
-            return false;
-#endif
-*/
         }
 
         /// <summary>
