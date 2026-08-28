@@ -4,9 +4,9 @@
   "FeatureFlagsFileData": {
     "Data": {
       "Dev": {
-        "hud_a": true,
-        "hud_b": false,
-        "feature_x": true,
+        "hud_a": false,
+        "hud_b": true,
+        "feature_x": false,
         "feature_y": true
       },
       "Prod": {
