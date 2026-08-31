@@ -21,7 +21,9 @@ Following the videos above, you can access the main window in 'Feature Flags/Ope
 3. Access the Settings to apply your custom configuration such as Paths and Providers
 4. Tap in the action buttons to set the changes of the flag
 
-## Component Overview
+## Architecture/Components Overview
+
+![](media/architecture-overview.png)
 
 ### Feature Flag Tool (UIToolkit Window): 
 
@@ -39,10 +41,6 @@ The implementation follows a settings as a source of truth that allows to set di
 - *Loading Type*: If it is to loading all game objects and cache it, or loading each game object if it is requested.(Note: after load it, it has been cache it as well)
 
 - *Streaming AssetPath*: The path to build the bundles.
-
-
-### Architecture Overview:
-
 
 
 ### How to expand: 
