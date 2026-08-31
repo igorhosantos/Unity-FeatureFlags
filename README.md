@@ -7,7 +7,8 @@
 1. Easy way to make and control AB tests
 2. Turn On/Off features without making new builds
 3. Helpful to test and introduce new features
-4. Local/Offline safety version of the flags
+4. Flags Status separated by environments (Dev/Prod)
+5. Local/Offline safety version of the flags
 
 ![](media/feature_flags_demo.gif)
 
