@@ -29,23 +29,38 @@ Following the videos above, you can access the main window in 'Feature Flags/Ope
 
 ![](media/featureflags.png)
 
+
+The main window allows you to set the current usage of the flags, such as toogle on off the source, access the main settings and fecht the flags:
+
+NOTE:  Every change on this window will update a json manifest with a state machine approach. 
+
+- *Get Flags From Provide*: Will return a read-only version of the flags from the provider that is current set in the FeatureFlagSettings (Scriptable Object)
+
+- *Get Local Flags*: Will return the local flags from a JSON manifest that can be changed anytime.
+
+- *Update Local Flags From Provider*: Will override all the changes on the local manifest json by using the version from the provider set in the FeatureFlagSettings (Scriptable Object)
+
 ### FeatureFlagSettings (Scriptable Object): 
 
 ![](media/settings.png)
 
 
-The implementation follows a settings as a source of truth that allows to set different behaviors: 
+The settings files has encapsulated model to use rules for the usage of the feature, such as : 
 
-- *Provider Type*: The implementations available for types of asset providers. At this moment, standard bundles are implemented , but the solution allow us to provide Addressables or custom asset provideres
 
-- *Loading Type*: If it is to loading all game objects and cache it, or loading each game object if it is requested.(Note: after load it, it has been cache it as well)
+- *Principal Paths*: Paths and String Ids for the saving/updating process
 
-- *Streaming AssetPath*: The path to build the bundles.
+- *Environment*: The current environment that will be used at runtime
+
+- *Provider Type*: The available providers to set for the flags. It can be from Player Prefs, APIs or Third Parties
+
+- *Feature Flags Data Info*: List of strings that can be used local as a flag id list. It is an optional usage that is being used from the Player Prefs implementation.
+
 
 
 ### How to expand: 
 
-- 
+- Adding More Providers can be done by implementing a new class from *IFeatureFlagService*, adding that instance to the factory in *FeatureFlagProvidersFactory* and set the new enum in *FeatureFlagsSettingsScriptableObject.FeatureFlagsSettings.Providers* 
 
 ### Next improvements: 
 
